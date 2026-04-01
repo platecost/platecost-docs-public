@@ -1,0 +1,130 @@
+---
+title: API Reference
+description: Integrate PlateCost into your existing systems with the REST API
+---
+
+The PlateCost API lets you programmatically submit invoices, retrieve cost data, and integrate food cost intelligence into your own applications.
+
+## Authentication
+
+All API requests require an API key passed in the `Authorization` header:
+
+```bash
+curl -H "Authorization: Bearer pc_live_your_api_key" \
+  https://api.platecost.io/v1/invoices
+```
+
+Generate API keys in **Settings > API Keys** in your dashboard.
+
+<Warning>
+Keep your API keys secret. Do not commit them to version control or expose them in client-side code. Use environment variables or a secrets manager.
+</Warning>
+
+## Base URL
+
+```
+https://api.platecost.io/v1
+```
+
+## Endpoints
+
+### Invoices
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/invoices` | Submit a new invoice for processing |
+| `GET` | `/invoices` | List all invoices |
+| `GET` | `/invoices/:id` | Get invoice details and extracted line items |
+| `PATCH` | `/invoices/:id` | Update invoice data or approve |
+| `DELETE` | `/invoices/:id` | Delete an invoice |
+
+### Items
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/items` | List all extracted items across invoices |
+| `GET` | `/items/:id` | Get item details and price history |
+| `GET` | `/items/:id/prices` | Get price history for an item |
+
+### Recipes
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/recipes` | Create a new recipe |
+| `GET` | `/recipes` | List all recipes |
+| `GET` | `/recipes/:id` | Get recipe details with current costs |
+| `PATCH` | `/recipes/:id` | Update a recipe |
+| `DELETE` | `/recipes/:id` | Delete a recipe |
+
+### Vendors
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/vendors` | List all vendors |
+| `GET` | `/vendors/:id` | Get vendor details and spending summary |
+
+## Submitting an invoice
+
+```bash
+curl -X POST https://api.platecost.io/v1/invoices \
+  -H "Authorization: Bearer pc_live_your_api_key" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@invoice.pdf" \
+  -F "vendor_hint=US Foods"
+```
+
+**Response:**
+
+```json
+{
+  "id": "inv_abc123",
+  "status": "processing",
+  "vendor": "US Foods",
+  "created_at": "2026-03-15T10:30:00Z",
+  "estimated_completion": "2026-03-15T10:30:30Z"
+}
+```
+
+The invoice is processed asynchronously. Poll the invoice endpoint or configure a webhook to be notified when extraction is complete.
+
+## Webhooks
+
+Configure webhooks in **Settings > Webhooks** to receive real-time notifications:
+
+| Event | Description |
+|---|---|
+| `invoice.processed` | Invoice extraction is complete |
+| `invoice.approved` | Invoice has been approved |
+| `price.alert` | Item price exceeds alert threshold |
+| `recipe.cost_changed` | Recipe cost changed due to new pricing |
+
+**Webhook payload example:**
+
+```json
+{
+  "event": "invoice.processed",
+  "data": {
+    "invoice_id": "inv_abc123",
+    "vendor": "US Foods",
+    "total": 2847.50,
+    "line_items_count": 43
+  },
+  "timestamp": "2026-03-15T10:30:28Z"
+}
+```
+
+## Rate limits
+
+| Plan | Requests per minute |
+|---|---|
+| Starter | 60 |
+| Professional | 300 |
+| Enterprise | Custom |
+
+<Info>
+Rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`) are included in every response.
+</Info>
+
+## SDKs
+
+Official SDKs are coming soon. In the meantime, the REST API works with any HTTP client.

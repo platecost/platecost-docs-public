@@ -7,32 +7,32 @@
 
 export const siteConfig = {
   // Site metadata
-  name: '.',
-  description: 'Documentation for my project',
-  url: 'https://docs.example.com',
+  name: 'PlateCost Docs',
+  description: 'Documentation for PlateCost — AI-powered food cost intelligence for restaurants and distributors.',
+  url: 'https://docs.platecost.io',
 
   // Logo configuration
   logo: {
     src: '/logo.svg',
-    alt: 'Unmint',
+    alt: 'PlateCost',
     width: 40,
     height: 40,
   },
 
   // Navigation links
   links: {
-    github: 'https://github.com/your-org/your-repo',
-    discord: 'https://discord.gg/your-invite',
-    twitter: 'https://twitter.com/yourhandle',
-    support: 'mailto:support@example.com',
+    github: 'https://github.com/platecost',
+    discord: '',
+    twitter: '',
+    support: 'mailto:support@platecost.io',
   },
 
   // Footer configuration
   footer: {
-    copyright: '© 2025 Your Company. All rights reserved.',
+    copyright: '© 2026 PlateCost. All rights reserved.',
     links: [
-      { label: 'Website', href: 'https://example.com' },
-      { label: 'GitHub', href: 'https://github.com/your-org' },
+      { label: 'Website', href: 'https://platecost.io' },
+      { label: 'Book a Demo', href: 'https://calendly.com/michael-platecost/intro' },
     ],
   },
 }
@@ -42,15 +42,15 @@ export const themeConfig = {
   colors: {
     // Light mode
     light: {
-      accent: '#0891b2',        // Primary accent color
+      accent: '#16a34a',        // PlateCost green
       accentForeground: '#ffffff',
-      accentMuted: 'rgba(8, 145, 178, 0.1)',
+      accentMuted: 'rgba(22, 163, 74, 0.1)',
     },
     // Dark mode
     dark: {
-      accent: '#22d3ee',        // Brighter for dark backgrounds
+      accent: '#4ade80',        // Brighter green for dark backgrounds
       accentForeground: '#0f172a',
-      accentMuted: 'rgba(34, 211, 238, 0.1)',
+      accentMuted: 'rgba(74, 222, 128, 0.1)',
     },
   },
 
@@ -69,12 +69,12 @@ export const themeConfig = {
   // OG Image generation settings
   ogImage: {
     // Gradient background (CSS gradient string)
-    gradient: 'linear-gradient(135deg, #ffffff 0%, #e0f7fa 50%, #67e8f9 100%)',
+    gradient: 'linear-gradient(135deg, #ffffff 0%, #dcfce7 50%, #4ade80 100%)',
     // Text colors
     titleColor: '#0f172a',
-    sectionColor: '#0891b2',
+    sectionColor: '#16a34a',
     // Logo URL (absolute URL required for OG images)
-    logoUrl: 'https://example.com/logo.png',
+    logoUrl: 'https://platecost.io/static/images/logo-transparent-v3.png',
   },
 }
 

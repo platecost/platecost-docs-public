@@ -1,0 +1,73 @@
+---
+title: Invoice Processing
+description: How PlateCost extracts and analyzes data from food distributor invoices
+---
+
+PlateCost's AI-powered invoice processing is the foundation of everything else — recipe costing, vendor comparison, and spend tracking all start with accurate invoice data.
+
+## Supported formats
+
+PlateCost accepts invoices in any of these formats:
+
+| Format | How to submit |
+|---|---|
+| **PDF** | Upload directly through the dashboard |
+| **Photo** | Take a picture with your phone or upload an image file |
+| **Email** | Forward invoice emails to your unique PlateCost address |
+| **CSV/Excel** | Upload spreadsheet exports from your vendor portal |
+
+<Tip>
+For best results with photos, ensure the invoice is well-lit, flat, and fully visible in the frame. The AI can handle slight angles and shadows, but clearer images produce faster, more accurate results.
+</Tip>
+
+## What gets extracted
+
+For each invoice, PlateCost extracts:
+
+- **Vendor name** and invoice number
+- **Invoice date** and delivery date
+- **Line items** — product name, brand, pack size
+- **Quantities** and units of measure
+- **Unit price** and extended price
+- **Category** — automatically classified (protein, produce, dairy, etc.)
+- **Totals** — subtotal, tax, fees, credits
+
+## AI extraction accuracy
+
+PlateCost uses specialized AI models trained on thousands of food distributor invoices. Accuracy improves over time as the system learns your vendors' invoice formats.
+
+- **First invoice from a vendor**: ~95% accuracy on line items
+- **After 5+ invoices**: ~99% accuracy with format recognition
+- **Manual corrections** train the model for future invoices from that vendor
+
+## Bulk upload
+
+For initial setup or catching up on historical data, use the bulk upload feature:
+
+1. Go to **Invoices > Bulk Upload**
+2. Drag and drop up to 50 invoices at once
+3. PlateCost queues them for processing and notifies you when complete
+
+<Info>
+Bulk uploads are processed in the background. You can continue using the platform while invoices are being extracted.
+</Info>
+
+## Invoice review workflow
+
+After extraction, each invoice enters a review state:
+
+1. **Extracted** — AI has processed the invoice and extracted data
+2. **Review** — You verify the extracted data (optional but recommended for the first few)
+3. **Approved** — Data flows into your cost tracking and recipe costing
+
+You can configure auto-approval for trusted vendors once you're confident in extraction accuracy.
+
+## Email forwarding
+
+Each PlateCost account gets a unique email address for invoice submission:
+
+```
+invoices+{your-account-id}@ingest.platecost.io
+```
+
+Set up email forwarding rules with your vendor to automatically route invoice emails to PlateCost. The system extracts invoices from email attachments (PDF, images) and inline content.

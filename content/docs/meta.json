@@ -3,11 +3,15 @@
   "pages": [
     "index",
     "quickstart",
-    "---Getting Started---",
-    "components",
-    "theming",
-    "---Guides---",
-    "deployment",
-    "customization"
+    "---Platform---",
+    "restaurants",
+    "distributors",
+    "---Features---",
+    "invoices",
+    "recipes",
+    "---Developer---",
+    "api",
+    "---Support---",
+    "faq"
   ]
 }

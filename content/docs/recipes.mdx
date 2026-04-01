@@ -1,0 +1,86 @@
+---
+title: Recipe Costing
+description: Calculate plate costs with real-time pricing from your actual invoices
+---
+
+PlateCost's recipe costing connects your menu items to your actual invoice data — so plate costs update automatically as ingredient prices change.
+
+## Creating a recipe
+
+<Steps>
+  <Step title="Navigate to Recipes">
+    Go to **Recipes > New Recipe** in your dashboard.
+  </Step>
+
+  <Step title="Add ingredients">
+    Search for ingredients by name. PlateCost matches them to items from your invoices, pulling in the latest pricing automatically.
+
+    For each ingredient, specify:
+    - **Quantity** — how much you use per serving
+    - **Unit** — oz, lb, each, cup, etc.
+    - **Preparation** — raw, trimmed, cooked (affects yield calculations)
+  </Step>
+
+  <Step title="Set yield and portions">
+    Define:
+    - **Recipe yield** — total output (e.g., 4 quarts of sauce)
+    - **Portion size** — how much goes on each plate (e.g., 4 oz per serving)
+    - **Number of servings** — auto-calculated from yield and portion size
+  </Step>
+
+  <Step title="Review plate cost">
+    PlateCost calculates your cost per serving based on current invoice prices. You'll see:
+    - **Total recipe cost**
+    - **Cost per serving**
+    - **Food cost percentage** (at your menu price)
+    - **Ingredient cost breakdown**
+  </Step>
+</Steps>
+
+## Live pricing
+
+Recipe costs are always based on the most recent invoice price for each ingredient. When a new invoice is processed:
+
+- Ingredient prices update automatically
+- Recipe costs recalculate
+- You can see price change impact on the recipe detail page
+
+<Tip>
+Set up price alerts on key recipe ingredients to get notified when costs change significantly. Go to **Settings > Alerts** to configure thresholds.
+</Tip>
+
+## Food cost percentage
+
+PlateCost shows food cost percentage for every recipe:
+
+```
+Food Cost % = (Cost per Serving / Menu Price) × 100
+```
+
+| Food Cost % | Status |
+|---|---|
+| Under 28% | Excellent margin |
+| 28–32% | Healthy range for most concepts |
+| 32–35% | Watch closely |
+| Over 35% | Action needed — review pricing or portions |
+
+## Menu modeling
+
+Use the **Menu Modeler** to simulate changes before committing:
+
+- **Adjust menu prices** — see how a $1 increase affects food cost %
+- **Swap ingredients** — compare costs with alternative products
+- **Change portions** — model the impact of portion adjustments
+- **Seasonal planning** — project costs based on historical price trends
+
+## Sub-recipes
+
+PlateCost supports nested recipes for complex preparations:
+
+- Create base recipes (sauces, stocks, marinades)
+- Reference sub-recipes as ingredients in other recipes
+- Costs cascade — when a sub-recipe's ingredients change in price, all parent recipes update
+
+<Info>
+Sub-recipes are particularly useful for prep items that appear across multiple menu items. Change the recipe once, and costs update everywhere.
+</Info>

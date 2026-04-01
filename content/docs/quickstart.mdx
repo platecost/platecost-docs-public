@@ -1,110 +1,66 @@
 ---
 title: Quick Start
-description: Get your documentation site up and running in under 5 minutes
+description: Get up and running with PlateCost in under 15 minutes
 ---
 
-This guide will help you set up Unmint and create your first documentation page.
+This guide walks you through setting up PlateCost and processing your first invoice.
 
 ## Prerequisites
 
-Before you begin, make sure you have:
+Before you begin, you'll need:
 
-- **Node.js 18+** installed
-- **npm** or **pnpm** package manager
-- A code editor (VS Code recommended)
+- An active PlateCost account — [sign up here](https://platecost.io)
+- At least one food distributor invoice (PDF, photo, or email)
 
-## Installation
+## Step-by-step setup
 
 <Steps>
-  <Step title="Clone the repository">
-    Start by cloning the Unmint template:
-
-    ```bash
-    git clone https://github.com/gregce/unmint.git my-docs
-    cd my-docs
-    ```
+  <Step title="Sign in to your dashboard">
+    Log in at [app.platecost.io](https://app.platecost.io) with the credentials from your welcome email. Your dashboard is where you'll manage invoices, track costs, and configure settings.
   </Step>
 
-  <Step title="Install dependencies">
-    Install the required npm packages:
+  <Step title="Add your first vendor">
+    Navigate to **Settings > Vendors** and add your primary food distributor. PlateCost supports all major distributors including US Foods, Sysco, Gordon Food Service, Ben E. Keith, and more.
 
-    ```bash
-    npm install
-    ```
+    <Info>
+    You can also skip this step — PlateCost will auto-detect the vendor from your invoice.
+    </Info>
   </Step>
 
-  <Step title="Start the development server">
-    Launch the local development server:
+  <Step title="Upload an invoice">
+    Go to **Invoices > Upload** and submit your first invoice. You can:
 
-    ```bash
-    npm run dev
-    ```
+    - **Upload a PDF** — drag and drop or click to browse
+    - **Take a photo** — use your phone camera for paper invoices
+    - **Forward an email** — send invoice emails to your unique PlateCost address
 
-    Open [http://localhost:3000](http://localhost:3000) in your browser.
+    The AI processes your invoice in seconds, extracting every line item, price, quantity, and unit.
   </Step>
 
-  <Step title="Create your first page">
-    Add a new MDX file in `content/docs/`:
+  <Step title="Review extracted data">
+    PlateCost shows you the extracted invoice data for review. Check that items, prices, and quantities were captured correctly. You can edit any field if needed.
 
-    ```mdx
-    ---
-    title: My First Page
-    description: A description of my page
-    ---
+    <Tip>
+    The AI improves over time — the more invoices you upload from a vendor, the more accurate extraction becomes.
+    </Tip>
+  </Step>
 
-    # Hello World
+  <Step title="Explore your cost dashboard">
+    Once your invoice is processed, head to the **Dashboard** to see:
 
-    This is my first documentation page!
-    ```
+    - **Spending by category** — proteins, produce, dairy, dry goods, etc.
+    - **Price trends** — how item prices are changing over time
+    - **Top spend items** — your highest-cost ingredients at a glance
   </Step>
 </Steps>
 
-## Project Structure
-
-Here's an overview of the key directories:
-
-```
-my-docs/
-├── app/                    # Next.js app directory
-│   ├── docs/              # Documentation routes
-│   └── components/        # UI components
-├── content/
-│   └── docs/              # Your MDX documentation files
-│       ├── index.mdx      # Homepage
-│       └── meta.json      # Navigation structure
-├── lib/
-│   └── theme-config.ts    # Customize your theme here
-└── public/                # Static assets
-```
-
-## Adding Navigation
-
-Edit `content/docs/meta.json` to configure your sidebar navigation:
-
-```json
-{
-  "title": "Documentation",
-  "pages": [
-    "index",
-    "quickstart",
-    "---Getting Started---",
-    "installation",
-    "configuration"
-  ]
-}
-```
-
-<Info>
-Use `"---Section Name---"` to create section separators in your sidebar.
-</Info>
-
-## Next Steps
+## What's next?
 
 <CardGroup cols={2}>
-  <Card title="Learn Components" icon="code" href="/docs/components">
-    Explore all available MDX components
+  <Card title="Invoice Processing" icon="code" href="/docs/invoices">
+    Learn about supported formats, AI extraction, and bulk uploads.
   </Card>
-  <Card title="Customize Theme" icon="gear" href="/docs/theming">
-    Match your brand colors and styling
+  <Card title="Recipe Costing" icon="gear" href="/docs/recipes">
+    Calculate plate costs using real invoice prices.
   </Card>
 </CardGroup>

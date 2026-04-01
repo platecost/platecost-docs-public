@@ -1,7 +1,7 @@
 {
-  "name": ".",
+  "name": "platecost-docs-public",
   "version": "0.1.0",
-  "description": "Documentation for my project",
+  "description": "Public documentation for PlateCost — AI-powered food cost intelligence",
   "private": true,
   "scripts": {
     "dev": "next dev",
