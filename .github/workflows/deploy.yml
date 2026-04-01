@@ -1,0 +1,124 @@
+name: Deploy
+
+# Manual-only until ready to enable auto-deploy on push
+# To enable: uncomment the push trigger below
+on:
+  # push:
+  #   branches: [main, dev]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options: [dev, prod]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: "542350995782"
+  ECR_REGISTRY: 542350995782.dkr.ecr.us-east-1.amazonaws.com
+
+jobs:
+  setup:
+    name: "Setup"
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+      cluster_name: ${{ steps.env.outputs.cluster_name }}
+    steps:
+      - id: env
+        run: |
+          if [ "${{ github.event.inputs.environment }}" != "" ]; then
+            ENV="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            ENV="prod"
+          else
+            ENV="dev"
+          fi
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+          echo "cluster_name=platecost-$ENV" >> $GITHUB_OUTPUT
+
+  build:
+    name: "Build Docs Image"
+    needs: setup
+    runs-on: ubuntu-latest
+    env:
+      ENV: ${{ needs.setup.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/platecost-${{ env.ENV }}-github-actions-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/platecost-docs-public:${{ env.ENV }}-${{ github.sha }}
+            ${{ env.ECR_REGISTRY }}/platecost-docs-public:${{ env.ENV }}-latest
+          cache-from: type=registry,ref=${{ env.ECR_REGISTRY }}/platecost-docs-public:${{ env.ENV }}-latest
+          cache-to: type=inline
+
+  deploy:
+    name: "Deploy Docs"
+    needs: [setup, build]
+    runs-on: ubuntu-latest
+    env:
+      CLUSTER: ${{ needs.setup.outputs.cluster_name }}
+      ENV: ${{ needs.setup.outputs.environment }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/platecost-${{ env.ENV }}-github-actions-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update docs service
+        run: |
+          aws ecs update-service --cluster ${{ env.CLUSTER }} --service docs-public \
+            --force-new-deployment --query 'service.serviceName' --output text
+          aws ecs wait services-stable --cluster ${{ env.CLUSTER }} --services docs-public
+        timeout-minutes: 5
+
+  verify:
+    name: "Verify Healthy"
+    needs: [setup, deploy]
+    runs-on: ubuntu-latest
+    env:
+      CLUSTER: ${{ needs.setup.outputs.cluster_name }}
+      ENV: ${{ needs.setup.outputs.environment }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/platecost-${{ env.ENV }}-github-actions-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Check service healthy
+        run: |
+          RUNNING=$(aws ecs describe-services --cluster ${{ env.CLUSTER }} --services docs-public \
+            --query 'services[0].runningCount' --output text)
+          DESIRED=$(aws ecs describe-services --cluster ${{ env.CLUSTER }} --services docs-public \
+            --query 'services[0].desiredCount' --output text)
+          echo "docs-public: $RUNNING/$DESIRED running"
+          if [ "$RUNNING" != "$DESIRED" ]; then
+            echo "::error::docs-public: running ($RUNNING) != desired ($DESIRED)"
+            exit 1
+          fi
+          echo "::notice::Docs service healthy"
