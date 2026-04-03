@@ -97,6 +97,7 @@ jobs:
   deploy-eks:
     name: "Deploy Docs (EKS)"
     needs: [setup, build]
+    if: needs.setup.outputs.environment == 'dev'
     runs-on: ubuntu-latest
     env:
       ENV: ${{ needs.setup.outputs.environment }}
@@ -119,6 +120,7 @@ jobs:
   verify:
     name: "Verify Healthy"
     needs: [setup, deploy-ecs, deploy-eks]
+    if: always() && needs.deploy-ecs.result == 'success' && (needs.deploy-eks.result == 'success' || needs.deploy-eks.result == 'skipped')
     runs-on: ubuntu-latest
     env:
       CLUSTER: ${{ needs.setup.outputs.cluster_name }}
@@ -127,7 +129,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/platecost-${{ env.ENV }}-github-actions-eks-deploy
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/platecost-${{ env.ENV }}-github-actions-${{ env.ENV == 'dev' && 'eks-' || '' }}deploy
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Check ECS service healthy
@@ -143,8 +145,10 @@ jobs:
           fi
 
       - name: Check EKS deployment healthy
+        if: needs.setup.outputs.environment == 'dev'
         run: |
           aws eks update-kubeconfig --name platecost-${{ env.ENV }}-eks --region ${{ env.AWS_REGION }}
           kubectl get deployment docs-public -n platecost -o jsonpath='{.status.readyReplicas}' | \
             xargs -I{} echo "EKS docs-public: {} ready"
-          echo "::notice::Docs service healthy on ECS and EKS"
+
+      - run: echo "::notice::Docs service healthy"
