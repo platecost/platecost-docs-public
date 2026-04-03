@@ -73,8 +73,8 @@ jobs:
           cache-from: type=registry,ref=${{ env.ECR_REGISTRY }}/platecost-docs-public:${{ env.ENV }}-latest
           cache-to: type=inline
 
-  deploy:
-    name: "Deploy Docs"
+  deploy-ecs:
+    name: "Deploy Docs (ECS)"
     needs: [setup, build]
     runs-on: ubuntu-latest
     env:
@@ -94,9 +94,31 @@ jobs:
           aws ecs wait services-stable --cluster ${{ env.CLUSTER }} --services docs-public
         timeout-minutes: 5
 
+  deploy-eks:
+    name: "Deploy Docs (EKS)"
+    needs: [setup, build]
+    runs-on: ubuntu-latest
+    env:
+      ENV: ${{ needs.setup.outputs.environment }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/platecost-${{ env.ENV }}-github-actions-eks-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name platecost-${{ env.ENV }}-eks --region ${{ env.AWS_REGION }}
+
+      - name: Restart docs-public deployment
+        run: |
+          kubectl rollout restart deployment/docs-public -n platecost
+          kubectl rollout status deployment/docs-public -n platecost --timeout=300s
+        timeout-minutes: 6
+
   verify:
     name: "Verify Healthy"
-    needs: [setup, deploy]
+    needs: [setup, deploy-ecs, deploy-eks]
     runs-on: ubuntu-latest
     env:
       CLUSTER: ${{ needs.setup.outputs.cluster_name }}
@@ -105,18 +127,24 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/platecost-${{ env.ENV }}-github-actions-deploy
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/platecost-${{ env.ENV }}-github-actions-eks-deploy
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Check service healthy
+      - name: Check ECS service healthy
         run: |
           RUNNING=$(aws ecs describe-services --cluster ${{ env.CLUSTER }} --services docs-public \
             --query 'services[0].runningCount' --output text)
           DESIRED=$(aws ecs describe-services --cluster ${{ env.CLUSTER }} --services docs-public \
             --query 'services[0].desiredCount' --output text)
-          echo "docs-public: $RUNNING/$DESIRED running"
+          echo "ECS docs-public: $RUNNING/$DESIRED running"
           if [ "$RUNNING" != "$DESIRED" ]; then
-            echo "::error::docs-public: running ($RUNNING) != desired ($DESIRED)"
+            echo "::error::ECS docs-public: running ($RUNNING) != desired ($DESIRED)"
             exit 1
           fi
-          echo "::notice::Docs service healthy"
+
+      - name: Check EKS deployment healthy
+        run: |
+          aws eks update-kubeconfig --name platecost-${{ env.ENV }}-eks --region ${{ env.AWS_REGION }}
+          kubectl get deployment docs-public -n platecost -o jsonpath='{.status.readyReplicas}' | \
+            xargs -I{} echo "EKS docs-public: {} ready"
+          echo "::notice::Docs service healthy on ECS and EKS"
